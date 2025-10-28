@@ -79,7 +79,7 @@ st.markdown("""
         box-shadow: 0 0 25px rgba(90,0,255,0.4);
     }
     .metric-title {
-        font-size: 40px;
+        font-size: 0px;
         font-weight: 600;
         color: #5A00FF;
         margin-bottom: 5px;
