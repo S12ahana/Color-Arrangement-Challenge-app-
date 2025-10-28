@@ -1,0 +1,2 @@
+Arrangement Mode,Video Name,Generated Order,Detected Order,Correctly Placed,Correct Colors,Wrongly Placed,Accuracy (%),Time Taken (s),Result
+Circular,c1.mp4,"Yellow, Violet, Red, Pink, Blue, Green","Red, Violet, Blue, Pink, Yellow, Green",3,"Violet, Pink, Green",3,50.0,19.38,❌ Incorrect
