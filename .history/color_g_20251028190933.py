@@ -122,7 +122,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🎨 COLOR PUZZLE ANALYSIS PORTAL 🎮</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🎨 COLOR UZZLE ANALYSIS PORTAL 🎮</h1>", unsafe_allow_html=True)
 
 arrangement_mode = st.radio("🎮 Choose Arrangement Mode", ["Linear", "Circular"])
 if "current_order" not in st.session_state:
@@ -159,7 +159,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
     cap.release()
 
     if last_frame is None:
-        st.error(" Could not read video frames.")
+        st.error("❌ Could not read video frames.")
     else:
         detected_positions = detect_colors(last_frame)
         if arrangement_mode.lower() == "linear":
@@ -214,7 +214,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         with colA:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title"> Correctly Placed</div>
+                <div class="metric-title">✅ Correctly Placed</div>
                 <div class="metric-value">{result_data['Correctly Placed']}</div>
                 <div class="metric-subtext">Colors matched perfectly</div>
             </div>
@@ -222,7 +222,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         with colB:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title"> Wrongly Placed</div>
+                <div class="metric-title">❌ Wrongly Placed</div>
                 <div class="metric-value">{result_data['Wrongly Placed']}</div>
                 <div class="metric-subtext">Colors mismatched</div>
             </div>
@@ -252,4 +252,4 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         with open(pdf_path, "rb") as f:
             st.download_button("📄 Download Report PDF", f, file_name=os.path.basename(pdf_path))
         st.balloons()
-        st.success("Analysis Completed!")
+        st.success("✅ Analysis Complete — GG!")

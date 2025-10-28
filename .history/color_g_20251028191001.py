@@ -159,7 +159,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
     cap.release()
 
     if last_frame is None:
-        st.error(" Could not read video frames.")
+        st.error("❌ Could not read video frames.")
     else:
         detected_positions = detect_colors(last_frame)
         if arrangement_mode.lower() == "linear":
