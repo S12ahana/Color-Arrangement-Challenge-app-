@@ -50,7 +50,7 @@ def detect_colors(frame):
     mask_pink = cv2.inRange(hsv, lower_pink, upper_pink)
     mask_violet = cv2.inRange(hsv, lower_violet, upper_violet)
 
-   
+    # --- Find centroids ---
     positions = {
         "Red": find_centroid(mask_red),
         "Blue": find_centroid(mask_blue),

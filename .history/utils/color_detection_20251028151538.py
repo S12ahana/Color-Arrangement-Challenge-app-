@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 def find_centroid(mask):
-    """Find the centroid (x, y) of the largest contour in a binary mask."""
+    
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         c = max(contours, key=cv2.contourArea)
@@ -14,7 +14,7 @@ def find_centroid(mask):
     return None
 
 def detect_colors(frame):
-    """Detect red, blue, green, yellow, pink, and violet objects and return their centroid positions."""
+    
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
   

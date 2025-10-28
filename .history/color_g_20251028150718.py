@@ -133,7 +133,7 @@ with col1:
     if st.button("🔀 Shuffle Colors"):
         st.session_state["current_order"] = random.sample(COLORS, len(COLORS))
 with col2:
-    st.markdown(f"<h3 style='color:dark blue;'>🧩 Current Order: {', '.join(st.session_state['current_order'])}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:white;'>🧩 Current Order: {', '.join(st.session_state['current_order'])}</h3>", unsafe_allow_html=True)
 
 uploaded_video = st.file_uploader("🎥 Upload your challenge video", type=["mp4"])
 

@@ -4,10 +4,10 @@ import os
 import time
 import math
 import random
-import numpy as np
 from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
+import numpy as np
 
 COLORS = ["Red", "Blue", "Green", "Yellow", "Pink", "Violet"]
 
@@ -31,125 +31,98 @@ def generate_pdf_report(data):
     pdf.save()
     return report_path
 
-st.set_page_config(page_title="🎮 Color Arrangement Challenge", layout="wide")
+st.set_page_config(page_title="Color Arrangement Challenge", layout="wide")
 
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #f6f9fc 0%, #e8f0ff 100%);
+        background: linear-gradient(135deg, #ede7f6 0%, #e3f2fd 100%);
         font-family: 'Poppins', sans-serif;
-        color: #1a1a1a;
     }
     h1 {
-        color: #5A00FF;
+        color: #4a148c;
         text-align: center;
-        text-shadow: 0 0 15px #b48eff, 0 0 25px #b48eff;
+        padding: 15px 0;
+        letter-spacing: 1px;
     }
     div.stButton > button {
-        background: linear-gradient(90deg, #5A00FF 0%, #FF00FF 100%);
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
         color: white;
-        border-radius: 10px;
+        border-radius: 8px;
         padding: 0.7em 1.6em;
-        font-weight: 700;
+        font-weight: 600;
         border: none;
         transition: 0.3s ease-in-out;
     }
     div.stButton > button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px #b48eff;
+        transform: scale(1.05);
+        background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
     }
     .report-card {
-        background: rgba(255, 255, 255, 0.7);
+        background-color: white;
         padding: 25px;
         border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         margin-top: 25px;
-        backdrop-filter: blur(10px);
     }
     .metric-card {
-        background: rgba(255, 255, 255, 0.85);
+        background: linear-gradient(145deg, #f5f3ff, #e3f2fd);
         padding: 25px;
         border-radius: 15px;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
         text-align: center;
-        transition: 0.3s;
-    }
-    .metric-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(90,0,255,0.4);
     }
     .metric-title {
         font-size: 20px;
         font-weight: 600;
-        color: #5A00FF;
+        color: #5e35b1;
         margin-bottom: 5px;
     }
     .metric-value {
-        font-size: 40px;
+        font-size: 36px;
         font-weight: 700;
-        color: #000;
-        text-shadow: 0 0 8px #b48eff;
+        color: #1e88e5;
     }
     .metric-subtext {
         font-size: 15px;
-        color: #555;
+        color: #616161;
         margin-top: 5px;
     }
     .stProgress > div > div {
-        background-color: #5A00FF !important;
+        background-color: #5e35b1 !important;
     }
     img {
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(90,0,255,0.3);
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
         transition: 0.3s;
     }
     img:hover {
-        transform: scale(1.05);
-    }
-    .stDownloadButton button {
-        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%) !important;
-        color: black !important;
-        font-weight: 600 !important;
-        border-radius: 8px !important;
-        padding: 10px 20px !important;
-        border: none !important;
-        transition: 0.3s ease;
-    }
-    .stDownloadButton button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px #92FE9D;
+        transform: scale(1.02);
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🎨 COLOR ORDER ANALYSIS PORTAL 🎮</h1>", unsafe_allow_html=True)
+st.title("Color Arrangement Challenge (Web Version)")
+arrangement_mode = st.radio("Choose Arrangement Mode", ["Linear", "Circular"])
 
-arrangement_mode = st.radio("🎮 Choose Arrangement Mode", ["Linear", "Circular"])
 if "current_order" not in st.session_state:
     st.session_state["current_order"] = COLORS
 
 col1, col2 = st.columns([1, 3])
 with col1:
-    if st.button("🔀 Shuffle Colors"):
+    if st.button("Shuffle Colors"):
         st.session_state["current_order"] = random.sample(COLORS, len(COLORS))
 with col2:
-    st.markdown(f"<h3 style='color:dark blue;'>🧩 Current Order: {', '.join(st.session_state['current_order'])}</h3>", unsafe_allow_html=True)
+    st.markdown(f"### Current Order: `{', '.join(st.session_state['current_order'])}`")
 
-uploaded_video = st.file_uploader("🎥 Upload your challenge video", type=["mp4"])
+uploaded_video = st.file_uploader("Upload your video", type=["mp4"])
 
-if uploaded_video and st.button("⚡ Analyze Video"):
+if uploaded_video and st.button("Analyze Video"):
     video_path = f"temp_{time.time()}.mp4"
     with open(video_path, "wb") as f:
         f.write(uploaded_video.read())
 
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    duration = frame_count / fps if fps > 0 else 0
-    minutes = int(duration // 60)
-    seconds = int(duration % 60)
-    video_duration = f"{minutes} min {seconds} sec"
-
     last_frame = None
     while True:
         ret, frame = cap.read()
@@ -159,9 +132,10 @@ if uploaded_video and st.button("⚡ Analyze Video"):
     cap.release()
 
     if last_frame is None:
-        st.error("❌ Could not read video frames.")
+        st.error("Could not read video frames.")
     else:
         detected_positions = detect_colors(last_frame)
+
         if arrangement_mode.lower() == "linear":
             colors_sorted = sorted(detected_positions.items(), key=lambda c: c[1][0] if c[1] else 9999)
         else:
@@ -191,51 +165,42 @@ if uploaded_video and st.button("⚡ Analyze Video"):
             "Correct Colors": ", ".join(correct_colors) if correct_colors else "None",
             "Wrongly Placed": wrong_count,
             "Accuracy (%)": accuracy,
-            "Challenge Duration": video_duration,
             "Result": "Correct" if correct_count == len(COLORS) else "Incorrect"
         }
 
         st.markdown('<div class="report-card">', unsafe_allow_html=True)
-        st.subheader("🧠 Performance Summary")
+        st.subheader("Performance Summary")
         st.markdown(f"""
         <div style='font-size:17px; line-height:1.8'>
-        <b>Arrangement Mode:</b> <span style='color:#FF00FF;'>{result_data['Arrangement Mode']}</span><br>
-        <b>Challenge Duration:</b> ⏱ {video_duration}<br>
+        <b>Arrangement Mode:</b> <span style='color:#1976D2;'>{result_data['Arrangement Mode']}</span><br>
         <b>Generated Order:</b> {result_data['Generated Order']}<br>
         <b>Detected Order:</b> {result_data['Detected Order']}<br>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("### ⚙️ Accuracy Overview")
+        st.markdown("### Accuracy Overview")
         st.progress(result_data["Accuracy (%)"] / 100)
-        st.markdown(f"<h3 style='color:#FF00FF; text-align:center;'>🎯 Accuracy: {result_data['Accuracy (%)']}%</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:#4A148C; text-align:center;'>Accuracy: {result_data['Accuracy (%)']}%</h3>", unsafe_allow_html=True)
 
         colA, colB = st.columns(2)
         with colA:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">✅ Correctly Placed</div>
+                <div class="metric-title">Correctly Placed</div>
                 <div class="metric-value">{result_data['Correctly Placed']}</div>
-                <div class="metric-subtext">Colors matched perfectly</div>
+                <div class="metric-subtext">Colors correctly arranged</div>
             </div>
             """, unsafe_allow_html=True)
         with colB:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">❌ Wrongly Placed</div>
+                <div class="metric-title">Wrongly Placed</div>
                 <div class="metric-value">{result_data['Wrongly Placed']}</div>
-                <div class="metric-subtext">Colors mismatched</div>
+                <div class="metric-subtext">Colors misplaced in sequence</div>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
-
-        if accuracy >= 90:
-            st.success("🏆 Excellent! You're a Color Master!")
-        elif accuracy >= 70:
-            st.info("🎯 Great job! Keep it up!")
-        else:
-            st.warning("⚡ Try again to improve your score!")
 
         os.makedirs("output", exist_ok=True)
         frame_copy = last_frame.copy()
@@ -246,10 +211,9 @@ if uploaded_video and st.button("⚡ Analyze Video"):
                 cv2.putText(frame_copy, color, (x - 30, y - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         highlighted_path = os.path.join("output", "highlighted_correct_colors.jpg")
         cv2.imwrite(highlighted_path, frame_copy)
-        st.image(cv2.cvtColor(frame_copy, cv2.COLOR_BGR2RGB), caption="🎨 Highlighted Color Positions")
+        st.image(cv2.cvtColor(frame_copy, cv2.COLOR_BGR2RGB), caption="Highlighted Correct Colors")
 
         pdf_path = generate_pdf_report(result_data)
         with open(pdf_path, "rb") as f:
-            st.download_button("📄 Download Report PDF", f, file_name=os.path.basename(pdf_path))
-        st.balloons()
-        st.success("✅ Analysis Complete — GG!")
+            st.download_button("Download Report PDF", f, file_name=os.path.basename(pdf_path))
+        st.success("Analysis complete.")

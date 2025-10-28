@@ -23,26 +23,27 @@ def detect_colors(frame):
     lower_red2 = np.array([170, 120, 70])
     upper_red2 = np.array([180, 255, 255])
 
-   
+    # Blue
     lower_blue = np.array([100, 150, 0])
     upper_blue = np.array([140, 255, 255])
 
-    
+    # Green
     lower_green = np.array([40, 70, 70])
     upper_green = np.array([80, 255, 255])
 
+    # Yellow
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    
+    # Pink (Magenta)
     lower_pink = np.array([160, 100, 100])
     upper_pink = np.array([170, 255, 255])
 
-   
+    # Violet (Purple)
     lower_violet = np.array([130, 100, 100])
     upper_violet = np.array([150, 255, 255])
 
-    
+    # --- Create masks ---
     mask_red = cv2.inRange(hsv, lower_red1, upper_red1) | cv2.inRange(hsv, lower_red2, upper_red2)
     mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
     mask_green = cv2.inRange(hsv, lower_green, upper_green)
@@ -50,7 +51,7 @@ def detect_colors(frame):
     mask_pink = cv2.inRange(hsv, lower_pink, upper_pink)
     mask_violet = cv2.inRange(hsv, lower_violet, upper_violet)
 
-   
+    # --- Find centroids ---
     positions = {
         "Red": find_centroid(mask_red),
         "Blue": find_centroid(mask_blue),

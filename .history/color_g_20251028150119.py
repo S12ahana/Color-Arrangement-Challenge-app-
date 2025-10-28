@@ -5,6 +5,7 @@ import time
 import math
 import random
 import numpy as np
+import pandas as pd
 from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
@@ -36,7 +37,7 @@ st.set_page_config(page_title="🎮 Color Arrangement Challenge", layout="wide")
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #f6f9fc 0%, #e8f0ff 100%);
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
         font-family: 'Poppins', sans-serif;
         color: #1a1a1a;
     }
@@ -67,7 +68,7 @@ st.markdown("""
         backdrop-filter: blur(10px);
     }
     .metric-card {
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.8);
         padding: 25px;
         border-radius: 15px;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
@@ -122,6 +123,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
 st.markdown("<h1>🎨 COLOR ORDER ANALYSIS PORTAL 🎮</h1>", unsafe_allow_html=True)
 
 arrangement_mode = st.radio("🎮 Choose Arrangement Mode", ["Linear", "Circular"])
@@ -133,7 +135,7 @@ with col1:
     if st.button("🔀 Shuffle Colors"):
         st.session_state["current_order"] = random.sample(COLORS, len(COLORS))
 with col2:
-    st.markdown(f"<h3 style='color:dark blue;'>🧩 Current Order: {', '.join(st.session_state['current_order'])}</h3>", unsafe_allow_html=True)
+    st.markdown(f"### 🧩 Current Order: `{', '.join(st.session_state['current_order'])}`")
 
 uploaded_video = st.file_uploader("🎥 Upload your challenge video", type=["mp4"])
 
@@ -143,13 +145,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         f.write(uploaded_video.read())
 
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    duration = frame_count / fps if fps > 0 else 0
-    minutes = int(duration // 60)
-    seconds = int(duration % 60)
-    video_duration = f"{minutes} min {seconds} sec"
-
     last_frame = None
     while True:
         ret, frame = cap.read()
@@ -191,7 +186,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
             "Correct Colors": ", ".join(correct_colors) if correct_colors else "None",
             "Wrongly Placed": wrong_count,
             "Accuracy (%)": accuracy,
-            "Challenge Duration": video_duration,
             "Result": "Correct" if correct_count == len(COLORS) else "Incorrect"
         }
 
@@ -200,7 +194,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         st.markdown(f"""
         <div style='font-size:17px; line-height:1.8'>
         <b>Arrangement Mode:</b> <span style='color:#FF00FF;'>{result_data['Arrangement Mode']}</span><br>
-        <b>Challenge Duration:</b> ⏱ {video_duration}<br>
         <b>Generated Order:</b> {result_data['Generated Order']}<br>
         <b>Detected Order:</b> {result_data['Detected Order']}<br>
         </div>

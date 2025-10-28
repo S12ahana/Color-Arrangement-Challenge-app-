@@ -5,6 +5,8 @@ import time
 import math
 import random
 import numpy as np
+import pandas as pd
+import plotly.express as px
 from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
@@ -31,100 +33,115 @@ def generate_pdf_report(data):
     pdf.save()
     return report_path
 
+
 st.set_page_config(page_title="🎮 Color Arrangement Challenge", layout="wide")
 
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #f6f9fc 0%, #e8f0ff 100%);
+        background: linear-gradient(145deg, #1c1c2b, #2e2e48);
         font-family: 'Poppins', sans-serif;
-        color: #1a1a1a;
+        color: white;
     }
     h1 {
-        color: #5A00FF;
+        color: #00ffff;
         text-align: center;
-        text-shadow: 0 0 15px #b48eff, 0 0 25px #b48eff;
+        text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
     }
     div.stButton > button {
-        background: linear-gradient(90deg, #5A00FF 0%, #FF00FF 100%);
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
         color: white;
         border-radius: 10px;
-        padding: 0.7em 1.6em;
+        padding: 0.8em 1.6em;
         font-weight: 700;
         border: none;
         transition: 0.3s ease-in-out;
     }
     div.stButton > button:hover {
         transform: scale(1.1);
-        box-shadow: 0 0 20px #b48eff;
+        box-shadow: 0 0 20px #00e6ff;
+    }
+    .stDownloadButton > button {
+        background: linear-gradient(90deg, #00e6ff 0%, #008cff 100%) !important;
+        color: white !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        transition: 0.3s ease-in-out !important;
+        border: none !important;
+        padding: 0.8em 1.5em !important;
+    }
+    .stDownloadButton > button:hover {
+        box-shadow: 0 0 20px #00e6ff;
+        transform: scale(1.05);
     }
     .report-card {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.05);
         padding: 25px;
         border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        box-shadow: 0 0 25px rgba(0,255,255,0.2);
         margin-top: 25px;
         backdrop-filter: blur(10px);
     }
     .metric-card {
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.08);
         padding: 25px;
         border-radius: 15px;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
         text-align: center;
         transition: 0.3s;
     }
     .metric-card:hover {
         transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(90,0,255,0.4);
+        box-shadow: 0 0 20px rgba(0,255,255,0.5);
     }
     .metric-title {
         font-size: 20px;
         font-weight: 600;
-        color: #5A00FF;
+        color: #00FFFF;
         margin-bottom: 5px;
     }
     .metric-value {
         font-size: 40px;
         font-weight: 700;
-        color: #000;
-        text-shadow: 0 0 8px #b48eff;
+        color: #FFFFFF;
+        text-shadow: 0 0 15px #00FFFF;
     }
     .metric-subtext {
         font-size: 15px;
-        color: #555;
+        color: #CCCCCC;
         margin-top: 5px;
     }
     .stProgress > div > div {
-        background-color: #5A00FF !important;
+        background-color: #00FFFF !important;
     }
     img {
         border-radius: 15px;
-        box-shadow: 0 0 15px rgba(90,0,255,0.3);
+        box-shadow: 0 0 20px rgba(0,255,255,0.4);
         transition: 0.3s;
     }
     img:hover {
-        transform: scale(1.05);
+        transform: scale(1.03);
     }
-    .stDownloadButton button {
-        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%) !important;
-        color: black !important;
-        font-weight: 600 !important;
-        border-radius: 8px !important;
-        padding: 10px 20px !important;
-        border: none !important;
-        transition: 0.3s ease;
+    div[data-baseweb="radio"] label {
+        background: rgba(255,255,255,0.08);
+        border-radius: 8px;
+        padding: 8px 16px;
+        margin: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+        color: #ffffff;
     }
-    .stDownloadButton button:hover {
+    div[data-baseweb="radio"] label:hover {
+        background: linear-gradient(90deg, #00e6ff, #007bff);
+        box-shadow: 0 0 10px #00e6ff;
         transform: scale(1.05);
-        box-shadow: 0 0 20px #92FE9D;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>🎨 COLOR ORDER ANALYSIS PORTAL 🎮</h1>", unsafe_allow_html=True)
 
-arrangement_mode = st.radio("🎮 Choose Arrangement Mode", ["Linear", "Circular"])
+arrangement_mode = st.radio("🎯 Choose Arrangement Mode", ["Linear", "Circular"])
 if "current_order" not in st.session_state:
     st.session_state["current_order"] = COLORS
 
@@ -133,7 +150,7 @@ with col1:
     if st.button("🔀 Shuffle Colors"):
         st.session_state["current_order"] = random.sample(COLORS, len(COLORS))
 with col2:
-    st.markdown(f"<h3 style='color:dark blue;'>🧩 Current Order: {', '.join(st.session_state['current_order'])}</h3>", unsafe_allow_html=True)
+    st.markdown(f"### 🧩 Current Order: `{', '.join(st.session_state['current_order'])}`")
 
 uploaded_video = st.file_uploader("🎥 Upload your challenge video", type=["mp4"])
 
@@ -143,13 +160,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         f.write(uploaded_video.read())
 
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    duration = frame_count / fps if fps > 0 else 0
-    minutes = int(duration // 60)
-    seconds = int(duration % 60)
-    video_duration = f"{minutes} min {seconds} sec"
-
     last_frame = None
     while True:
         ret, frame = cap.read()
@@ -191,7 +201,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
             "Correct Colors": ", ".join(correct_colors) if correct_colors else "None",
             "Wrongly Placed": wrong_count,
             "Accuracy (%)": accuracy,
-            "Challenge Duration": video_duration,
             "Result": "Correct" if correct_count == len(COLORS) else "Incorrect"
         }
 
@@ -199,8 +208,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         st.subheader("🧠 Performance Summary")
         st.markdown(f"""
         <div style='font-size:17px; line-height:1.8'>
-        <b>Arrangement Mode:</b> <span style='color:#FF00FF;'>{result_data['Arrangement Mode']}</span><br>
-        <b>Challenge Duration:</b> ⏱ {video_duration}<br>
+        <b>Arrangement Mode:</b> <span style='color:#00FFFF;'>{result_data['Arrangement Mode']}</span><br>
         <b>Generated Order:</b> {result_data['Generated Order']}<br>
         <b>Detected Order:</b> {result_data['Detected Order']}<br>
         </div>
@@ -208,7 +216,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
 
         st.markdown("### ⚙️ Accuracy Overview")
         st.progress(result_data["Accuracy (%)"] / 100)
-        st.markdown(f"<h3 style='color:#FF00FF; text-align:center;'>🎯 Accuracy: {result_data['Accuracy (%)']}%</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:#00FFFF; text-align:center;'>🎯 Accuracy: {result_data['Accuracy (%)']}%</h3>", unsafe_allow_html=True)
 
         colA, colB = st.columns(2)
         with colA:
@@ -229,6 +237,13 @@ if uploaded_video and st.button("⚡ Analyze Video"):
             """, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
+
+        data = pd.DataFrame({
+            "Category": ["Correct", "Wrong"],
+            "Count": [correct_count, wrong_count]
+        })
+        fig = px.pie(data, values='Count', names='Category', color_discrete_sequence=["#00FFFF", "#FF4081"])
+        st.plotly_chart(fig, use_container_width=True)
 
         if accuracy >= 90:
             st.success("🏆 Excellent! You're a Color Master!")
@@ -251,5 +266,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         pdf_path = generate_pdf_report(result_data)
         with open(pdf_path, "rb") as f:
             st.download_button("📄 Download Report PDF", f, file_name=os.path.basename(pdf_path))
+
         st.balloons()
         st.success("✅ Analysis Complete — GG!")
