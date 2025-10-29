@@ -5,64 +5,29 @@ import time
 import math
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
-from reportlab.lib.utils import ImageReader
-from reportlab.lib import colors
 
 COLORS = ["Red", "Blue", "Green", "Yellow", "Pink", "Violet"]
 
-def generate_pdf_report(data, pie_chart_path, feedback_text):
+def generate_pdf_report(data):
     report_path = f"Color_Challenge_Report_{int(time.time())}.pdf"
     pdf = pdf_canvas.Canvas(report_path, pagesize=A4)
-    width, height = A4
-
-    pdf.setStrokeColor(colors.black)
-    pdf.setLineWidth(3)
-    pdf.rect(30, 30, width - 60, height - 60)
-
     pdf.setFont("Helvetica-Bold", 18)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawCentredString(width / 2, 780, "Color Arrangement Challenge Report")
-
-    y = 740
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, y, "Performance Summary:")
-    y -= 25
+    pdf.drawString(100, 800, "Color Arrangement Challenge Report")
+    y = 760
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
     for key, value in data.items():
-        line = f"{key}: {value}"
-        if len(line) > 90:
-            parts = [line[i:i+90] for i in range(0, len(line), 90)]
-            for part in parts:
-                pdf.drawString(100, y, part)
+        text = f"{key}: {value}"
+        if len(text) > 90:
+            lines = [text[i:i + 90] for i in range(0, len(text), 90)]
+            for line in lines:
+                pdf.drawString(100, y, line)
                 y -= 15
         else:
-            pdf.drawString(100, y, line)
-            y -= 18
-    y -= 20
-
-    if os.path.exists(pie_chart_path):
-        chart_height = 250
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.setFillColor(colors.darkblue)
-        pdf.drawString(100, y, "Accuracy Overview:")
-        y -= chart_height + 40
-        pdf.drawImage(ImageReader(pie_chart_path), 150, y, width=300, height=chart_height)
-        y -= 40
-
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, y, "Feedback:")
-    y -= 20
-    pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
-    pdf.drawString(120, y, feedback_text)
-
+            pdf.drawString(100, y, text)
+            y -= 20
     pdf.save()
     return report_path
 
@@ -100,6 +65,38 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
         margin-top: 25px;
         backdrop-filter: blur(10px);
+    }
+    .metric-card {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        text-align: center;
+        transition: 0.3s;
+    }
+    .metric-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(90,0,255,0.4);
+    }
+    .metric-title {
+        font-size: 40px;
+        font-weight: 600;
+        color: #5A00FF;
+        margin-bottom: 5px;
+    }
+    .metric-value {
+        font-size: 40px;
+        font-weight: 700;
+        color: #000;
+        text-shadow: 0 0 8px #b48eff;
+    }
+    .metric-subtext {
+        font-size: 15px;
+        color: #555;
+        margin-top: 5px;
+    }
+    .stProgress > div > div {
+        background-color: #5A00FF !important;
     }
     img {
         border-radius: 15px;
@@ -162,7 +159,7 @@ if uploaded_video and st.button("⚡ Analyze Video"):
     cap.release()
 
     if last_frame is None:
-        st.error("❌ Could not read video frames.")
+        st.error(" Could not read video frames.")
     else:
         detected_positions = detect_colors(last_frame)
         if arrangement_mode.lower() == "linear":
@@ -210,52 +207,49 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         """, unsafe_allow_html=True)
 
         st.markdown("### ⚙️ Accuracy Overview")
-        col_graph, col_frame = st.columns([1, 1.5])
+        st.progress(result_data["Accuracy (%)"] / 100)
+        st.markdown(f"<h3 style='color:#FF00FF; text-align:center;'>🎯 Accuracy: {result_data['Accuracy (%)']}%</h3>", unsafe_allow_html=True)
 
-        pie_chart_path = "output/pie_chart.png"
-        with col_graph:
-            st.markdown(f"<h3 style='text-align:center;color:#FF00FF;'>🎯 Accuracy: {accuracy}%</h3>", unsafe_allow_html=True)
-            fig, ax = plt.subplots(figsize=(4, 4))
-            ax.pie(
-                [correct_count, wrong_count],
-                labels=["Correct", "Wrong"],
-                autopct="%1.1f%%",
-                startangle=90,
-                colors=["#7CFC00", "#FF6F61"],
-                textprops={"fontsize": 12, "color": "black"}
-            )
-            ax.axis("equal")
-            os.makedirs("output", exist_ok=True)
-            plt.savefig(pie_chart_path, bbox_inches="tight")
-            st.pyplot(fig)
+        colA, colB = st.columns(2)
+        with colA:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title"> Correctly Placed</div>
+                <div class="metric-value">{result_data['Correctly Placed']}</div>
+                <div class="metric-subtext">Colors matched perfectly</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with colB:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title"> Wrongly Placed</div>
+                <div class="metric-value">{result_data['Wrongly Placed']}</div>
+                <div class="metric-subtext">Colors mismatched</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        with col_frame:
-            os.makedirs("output", exist_ok=True)
-            frame_copy = last_frame.copy()
-            for color, pos in detected_positions.items():
-                if pos:
-                    x, y = pos
-                    cv2.circle(frame_copy, (x, y), 40,
-                               (0, 255, 0) if color in correct_colors else (0, 0, 255), 3)
-                    cv2.putText(frame_copy, color, (x - 30, y - 50),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-            highlighted_path = os.path.join("output", "highlighted_correct_colors.jpg")
-            cv2.imwrite(highlighted_path, frame_copy)
-            st.image(cv2.cvtColor(frame_copy, cv2.COLOR_BGR2RGB),
-                     caption="🎨 Highlighted Color Positions")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         if accuracy >= 90:
-            feedback_text = "🏆 Excellent! You're a Color Master!"
-            st.success(feedback_text)
+            st.success("🏆 Excellent! You're a Color Master!")
         elif accuracy >= 70:
-            feedback_text = "🎯 Great job! Keep it up!"
-            st.info(feedback_text)
+            st.info("🎯 Great job! Keep it up!")
         else:
-            feedback_text = "⚡ Try again to improve your score!"
-            st.warning(feedback_text)
+            st.warning("⚡ Try again to improve your score!")
 
-        pdf_path = generate_pdf_report(result_data, pie_chart_path, feedback_text)
+        os.makedirs("output", exist_ok=True)
+        frame_copy = last_frame.copy()
+        for color, pos in detected_positions.items():
+            if pos:
+                x, y = pos
+                cv2.circle(frame_copy, (x, y), 40, (0, 255, 0) if color in correct_colors else (0, 0, 255), 3)
+                cv2.putText(frame_copy, color, (x - 30, y - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        highlighted_path = os.path.join("output", "highlighted_correct_colors.jpg")
+        cv2.imwrite(highlighted_path, frame_copy)
+        st.image(cv2.cvtColor(frame_copy, cv2.COLOR_BGR2RGB), caption="🎨 Highlighted Color Positions")
+
+        pdf_path = generate_pdf_report(result_data)
         with open(pdf_path, "rb") as f:
             st.download_button("📄 Download Report PDF", f, file_name=os.path.basename(pdf_path))
         st.balloons()
-        st.success("✅ Analysis Completed!")
+        st.success("Analysis Completed!")

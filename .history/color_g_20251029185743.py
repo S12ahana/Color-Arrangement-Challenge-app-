@@ -9,60 +9,26 @@ import matplotlib.pyplot as plt
 from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
-from reportlab.lib.utils import ImageReader
-from reportlab.lib import colors
 
 COLORS = ["Red", "Blue", "Green", "Yellow", "Pink", "Violet"]
 
-def generate_pdf_report(data, pie_chart_path, feedback_text):
+def generate_pdf_report(data):
     report_path = f"Color_Challenge_Report_{int(time.time())}.pdf"
     pdf = pdf_canvas.Canvas(report_path, pagesize=A4)
-    width, height = A4
-
-    pdf.setStrokeColor(colors.black)
-    pdf.setLineWidth(3)
-    pdf.rect(30, 30, width - 60, height - 60)
-
     pdf.setFont("Helvetica-Bold", 18)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawCentredString(width / 2, 780, "Color Arrangement Challenge Report")
-
-    y = 740
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, y, "Performance Summary:")
-    y -= 25
+    pdf.drawString(100, 800, "Color Arrangement Challenge Report")
+    y = 760
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
     for key, value in data.items():
-        line = f"{key}: {value}"
-        if len(line) > 90:
-            parts = [line[i:i+90] for i in range(0, len(line), 90)]
-            for part in parts:
-                pdf.drawString(100, y, part)
+        text = f"{key}: {value}"
+        if len(text) > 90:
+            lines = [text[i:i + 90] for i in range(0, len(text), 90)]
+            for line in lines:
+                pdf.drawString(100, y, line)
                 y -= 15
         else:
-            pdf.drawString(100, y, line)
-            y -= 18
-    y -= 20
-
-    if os.path.exists(pie_chart_path):
-        chart_height = 250
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.setFillColor(colors.darkblue)
-        pdf.drawString(100, y, "Accuracy Overview:")
-        y -= chart_height + 40
-        pdf.drawImage(ImageReader(pie_chart_path), 150, y, width=300, height=chart_height)
-        y -= 40
-
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, y, "Feedback:")
-    y -= 20
-    pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
-    pdf.drawString(120, y, feedback_text)
-
+            pdf.drawString(100, y, text)
+            y -= 20
     pdf.save()
     return report_path
 
@@ -100,6 +66,35 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
         margin-top: 25px;
         backdrop-filter: blur(10px);
+    }
+    .metric-card {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        text-align: center;
+        transition: 0.3s;
+    }
+    .metric-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(90,0,255,0.4);
+    }
+    .metric-title {
+        font-size: 40px;
+        font-weight: 600;
+        color: #5A00FF;
+        margin-bottom: 5px;
+    }
+    .metric-value {
+        font-size: 40px;
+        font-weight: 700;
+        color: #000;
+        text-shadow: 0 0 8px #b48eff;
+    }
+    .metric-subtext {
+        font-size: 15px;
+        color: #555;
+        margin-top: 5px;
     }
     img {
         border-radius: 15px;
@@ -212,7 +207,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
         st.markdown("### ⚙️ Accuracy Overview")
         col_graph, col_frame = st.columns([1, 1.5])
 
-        pie_chart_path = "output/pie_chart.png"
         with col_graph:
             st.markdown(f"<h3 style='text-align:center;color:#FF00FF;'>🎯 Accuracy: {accuracy}%</h3>", unsafe_allow_html=True)
             fig, ax = plt.subplots(figsize=(4, 4))
@@ -225,8 +219,6 @@ if uploaded_video and st.button("⚡ Analyze Video"):
                 textprops={"fontsize": 12, "color": "black"}
             )
             ax.axis("equal")
-            os.makedirs("output", exist_ok=True)
-            plt.savefig(pie_chart_path, bbox_inches="tight")
             st.pyplot(fig)
 
         with col_frame:
@@ -245,16 +237,13 @@ if uploaded_video and st.button("⚡ Analyze Video"):
                      caption="🎨 Highlighted Color Positions")
 
         if accuracy >= 90:
-            feedback_text = "🏆 Excellent! You're a Color Master!"
-            st.success(feedback_text)
+            st.success("🏆 Excellent! You're a Color Master!")
         elif accuracy >= 70:
-            feedback_text = "🎯 Great job! Keep it up!"
-            st.info(feedback_text)
+            st.info("🎯 Great job! Keep it up!")
         else:
-            feedback_text = "⚡ Try again to improve your score!"
-            st.warning(feedback_text)
+            st.warning("⚡ Try again to improve your score!")
 
-        pdf_path = generate_pdf_report(result_data, pie_chart_path, feedback_text)
+        pdf_path = generate_pdf_report(result_data)
         with open(pdf_path, "rb") as f:
             st.download_button("📄 Download Report PDF", f, file_name=os.path.basename(pdf_path))
         st.balloons()

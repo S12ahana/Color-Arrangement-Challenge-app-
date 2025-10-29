@@ -10,59 +10,35 @@ from utils.color_detection import detect_colors
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as pdf_canvas
 from reportlab.lib.utils import ImageReader
-from reportlab.lib import colors
 
 COLORS = ["Red", "Blue", "Green", "Yellow", "Pink", "Violet"]
 
 def generate_pdf_report(data, pie_chart_path, feedback_text):
     report_path = f"Color_Challenge_Report_{int(time.time())}.pdf"
     pdf = pdf_canvas.Canvas(report_path, pagesize=A4)
-    width, height = A4
-
-    pdf.setStrokeColor(colors.black)
-    pdf.setLineWidth(3)
-    pdf.rect(30, 30, width - 60, height - 60)
-
     pdf.setFont("Helvetica-Bold", 18)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawCentredString(width / 2, 780, "Color Arrangement Challenge Report")
-
-    y = 740
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.setFillColor(colors.darkblue)
-    pdf.drawString(100, y, "Performance Summary:")
-    y -= 25
+    pdf.drawString(100, 800, "Color Arrangement Challenge Report")
+    y = 760
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
     for key, value in data.items():
-        line = f"{key}: {value}"
-        if len(line) > 90:
-            parts = [line[i:i+90] for i in range(0, len(line), 90)]
-            for part in parts:
-                pdf.drawString(100, y, part)
+        text = f"{key}: {value}"
+        if len(text) > 90:
+            lines = [text[i:i + 90] for i in range(0, len(text), 90)]
+            for line in lines:
+                pdf.drawString(100, y, line)
                 y -= 15
         else:
-            pdf.drawString(100, y, line)
-            y -= 18
-    y -= 20
-
+            pdf.drawString(100, y, text)
+            y -= 20
+    y -= 30
     if os.path.exists(pie_chart_path):
-        chart_height = 250
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.setFillColor(colors.darkblue)
-        pdf.drawString(100, y, "Accuracy Overview:")
-        y -= chart_height + 40
-        pdf.drawImage(ImageReader(pie_chart_path), 150, y, width=300, height=chart_height)
-        y -= 40
-
+        pdf.drawImage(ImageReader(pie_chart_path), 150, y - 250, width=300, height=250)
+        y -= 270
     pdf.setFont("Helvetica-Bold", 13)
-    pdf.setFillColor(colors.darkblue)
     pdf.drawString(100, y, "Feedback:")
     y -= 20
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.black)
     pdf.drawString(120, y, feedback_text)
-
     pdf.save()
     return report_path
 
@@ -100,6 +76,35 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
         margin-top: 25px;
         backdrop-filter: blur(10px);
+    }
+    .metric-card {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        text-align: center;
+        transition: 0.3s;
+    }
+    .metric-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(90,0,255,0.4);
+    }
+    .metric-title {
+        font-size: 40px;
+        font-weight: 600;
+        color: #5A00FF;
+        margin-bottom: 5px;
+    }
+    .metric-value {
+        font-size: 40px;
+        font-weight: 700;
+        color: #000;
+        text-shadow: 0 0 8px #b48eff;
+    }
+    .metric-subtext {
+        font-size: 15px;
+        color: #555;
+        margin-top: 5px;
     }
     img {
         border-radius: 15px;
